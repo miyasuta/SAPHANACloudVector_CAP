@@ -5,7 +5,7 @@
 			"object_privileges": [
 		{
 			"schema": "VECTOR_DEMO",
-				"name": "REVIEWS_TARGET",
+				"name": "CUSTOMER_REVIEWS_AOAI",
 				"privileges_with_grant_option": ["SELECT"]
 		}]
 		},
@@ -14,7 +14,7 @@
 			"object_privileges": [
 			{
 				"schema": "VECTOR_DEMO",
-				"name": "REVIEWS_TARGET",
+				"name": "CUSTOMER_REVIEWS_AOAI",
 				"privileges": ["SELECT"]
 			}
 		]

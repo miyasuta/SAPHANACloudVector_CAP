@@ -7,6 +7,9 @@ const API_VERSION = process.env["AI_CORE_API_VERSION"] || "2023-05-15";
 
 const AI_API_VERSION = "2023-03-15-preview"
 
+//追加
+const OpenAI = require("openai");
+
        async function connectToGenAI(prompt)
 {
 
@@ -23,7 +26,7 @@ const AI_API_VERSION = "2023-03-15-preview"
     const embedDeploymentIdGenAI = "<Your DeploymenT ID>";
 
     //Enter the deployment id associated to sentiment defined in Gen AI hub.
-    const sentimentDeploymentIdGenAI = "<Your DeploymenT ID>"";
+    const sentimentDeploymentIdGenAI = "<Your DeploymenT ID>";
        
     //prepare the input data to be sent to Gen AI hub model       
     const payloadembed  = {
@@ -86,7 +89,7 @@ const AI_API_VERSION = "2023-03-15-preview"
 async function connectToOpenAI(prompt)
 {
 
-    const apikey = "<Your Azure Open AI Key>"; 
+    const apikey = ""; 
     const headers = { "Content-Type": "application/json", "api-key": apikey };
 
     //connect to the Gen AI hub destination service  
@@ -95,34 +98,43 @@ async function connectToOpenAI(prompt)
     //Get embeddings fom Gen AI hub based on the prompt
     const texts = prompt;
 
-    //Enter the deployment id associated to the embedding model
-    const embedDeploymentIdOpenAI = "<embeddingDeploymentID>";
+    // //Enter the deployment id associated to the embedding model
+    // const embedDeploymentIdOpenAI = "<embeddingDeploymentID>";
 
-    //Provide the deployment id associated to sentiment defined in Gen AI hub.
-    const sentimentDeploymentIdOpenAI = '<sentimentDeploymentID>';
+    // //Provide the deployment id associated to sentiment defined in Gen AI hub.
+    // const sentimentDeploymentIdOpenAI = '<sentimentDeploymentID>';
        
     //prepare the input data to be sent to Gen AI hub model       
     const payloadembed  = {
                     input: texts
                 };
 
-    //call Gen AI rest API via the desyination              
-    const responseEmbed = await aiCoreService.send({
-                    // @ts-ignore
-                    query: `POST openai/deployments/${embedDeploymentIdOpenAI}/embeddings?api-version=${AI_API_VERSION}`,
-                    data: payloadembed,
-                    headers: headers
-                });
+    //OpenAIに置き換え
+    // //call Gen AI rest API via the desyination              
+    // const responseEmbed = await aiCoreService.send({
+    //                 // @ts-ignore
+    //                 query: `POST openai/deployments/${embedDeploymentIdOpenAI}/embeddings?api-version=${AI_API_VERSION}`,
+    //                 data: payloadembed,
+    //                 headers: headers
+    //             });
 
     
-    //The embediing is retieved from the rest API
-    const input = responseEmbed["data"][0]?.embedding;
-           
+    // //The embediing is retieved from the rest API
+    // const input = responseEmbed["data"][0]?.embedding;
+    const openai = new OpenAI({
+        apiKey : apikey
+    });
+    const responseEmbed = await openai.embeddings.create({
+        model: "text-embedding-ada-002",
+        input: texts
+    })
+    const input = responseEmbed.data[0]?.embedding;
+    console.log("embedding: ", input);
     
     //Get the embedding information from the vector table.
-    const query = "SELECT TOP 10 FILENAME,TO_VARCHAR(TEXT) as TEXT,COSINE_SIMILARITY(VECTOR, TO_REAL_VECTOR('[" +input+"]')) as SCORING FROM  REVIEWS_TARGET ORDER BY COSINE_SIMILARITY(VECTOR, TO_REAL_VECTOR('[" +input+"]')) DESC";
+    const query = "SELECT TOP 10 TO_VARCHAR(FILENAME) as FILENAME,TO_VARCHAR(TEXT) as TEXT,COSINE_SIMILARITY(VECTOR, TO_REAL_VECTOR('[" +input+"]')) as SCORING FROM  REVIEWS_TARGET ORDER BY COSINE_SIMILARITY(VECTOR, TO_REAL_VECTOR('[" +input+"]')) DESC";
     const result = await cds.run(query);
-
+    console.log("resutl: ", result);
 
     //Pass the embedding to LLM model to receive the sentiment.
 
@@ -143,13 +155,21 @@ async function connectToOpenAI(prompt)
             prompt: sentimentPrompt
     };
     
-    sentimentResponse = await aiCoreService.send({
-        // @ts-ignore
-        query: `POST openai/deployments/${sentimentDeploymentIdOpenAI}/completions/?api-version=${AI_API_VERSION}`,
-        data: payload,
-        headers: headers
-    });
-    finalResponse.Response.push({"FILENAME":result[i].FILENAME,"TEXT": result[i].TEXT,"SCORING":result[i].SCORING,"SENTIMENT": sentimentResponse["choices"][0].text })
+    // sentimentResponse = await aiCoreService.send({
+    //     // @ts-ignore
+    //     query: `POST openai/deployments/${sentimentDeploymentIdOpenAI}/completions/?api-version=${AI_API_VERSION}`,
+    //     data: payload,
+    //     headers: headers
+    // });
+
+    sentimentResponse = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [{ role: 'user', content: sentimentPrompt }]
+    })
+
+    // console.log("sentimentResponse: ", sentimentResponse);
+
+    finalResponse.Response.push({"FILENAME":result[i].FILENAME,"TEXT": result[i].TEXT,"SCORING":result[i].SCORING,"SENTIMENT": sentimentResponse.choices[0].message.content})
     
       }
     

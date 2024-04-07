@@ -13,7 +13,8 @@
         "@sap/cds": "^7.6.1",
         "@sap/cds-compiler": "^4.6.0",
         "@sap/cds-hana": "^2",
-        "@sap/xsenv": "^4.0.0"
+        "@sap/xsenv": "^4.0.0",
+        "openai": "^4.33.0"
     },
     "devDependencies": {
         "@cap-js/sqlite": "^1",
