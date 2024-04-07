@@ -3,7 +3,7 @@
 
   "REVIEWS_TARGET": {
     "target": {
-      "object": "REVIEWS_TARGET",
+      "object": "CUSTOMER_REVIEWS_AOAI",
       "schema": "VECTOR_DEMO"
     }
   }

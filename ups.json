@@ -1,0 +1,8 @@
+{
+    "password": "Initpass01",
+    "schema": "VECTOR_DEMO",
+    "tags": [
+        "hana"
+    ],
+    "user": "DBADMIN"
+}

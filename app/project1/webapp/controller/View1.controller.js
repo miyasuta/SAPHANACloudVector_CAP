@@ -33,7 +33,7 @@ sap.ui.define([
 		var oGlobalBusyDialog = new sap.m.BusyDialog();
         oGlobalBusyDialog.open();
 		try {
-			const response = await fetch(`/odata/v4/gen-ai/connectToGenAI`, {
+			const response = await fetch(`/odata/v4/gen-ai/connectToOpenAI`, {
 				method: "POST",
 				headers: {
 					//"X-CSRF-Token": httpHeader["X-CSRF-Token"],
